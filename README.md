@@ -128,5 +128,25 @@ Call user.login:
 Implementing new services
 =========================
 
+New services should live in a class named after their group (System, Node, User) and Services (e.g. NodeServices). 
+
+It should have a ServicesClient property and it's constructor should set that property. 
+
+Parameters should be packaged in a JSONObject.
+
+Calls to services should be made using the provided methods in ServicesClient:
+
+* get(String method, JSONObject params, AsyncHttpResponseHandler responseHandler)
+* post(String method, JSONObject params, AsyncHttpResponseHandler responseHandler)
+* delete(String method, JSONObject params, AsyncHttpResponseHandler responseHandler)
+
+
 Uploading large files
 =====================
+
+TBD
+
+Progress callback for upload
+============================
+
+TBD
