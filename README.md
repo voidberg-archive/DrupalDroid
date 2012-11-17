@@ -144,7 +144,7 @@ Calls to services should be made using the provided methods in ServicesClient:
 Uploading large files
 =====================
 
-Android Asynchronous Http Client supports file uploading but it reads the whole contents of the file in memory 
+Android Asynchronous Http Client supports file uploading but reads the whole contents of the files in memory 
 which will not work for large files, causing your application to crash with an out of memory exception.
 
 The solution is to go a bit lower level and use the underlying HttpClient to do the upload attaching the files as 
@@ -177,4 +177,41 @@ InputStreams which will perform a streaming upload.
 Progress callback for upload
 ============================
 
-TBD
+HttpClient does not have built-in support for performing an upload with a progress callback and implementing one 
+isn't trivial.
+
+For file uploading you can implement a custom multi part entity that hooks into the file stream read operation and 
+counts how much data has been read.
+
+    int totalUploadSize = 0;
+
+    CustomMultiPartEntity postEntity = new CustomMultiPartEntity(new CustomMultiPartEntity.ProgressListener() {
+        @Override
+        public void transferred(long num) {
+            currentUploadSize = num;
+            updateUploadProgress((int) ((num / (float) totalUploadSize) * 100));
+            updateNotification((int) ((num / (float) totalUploadSize) * 100));
+        }
+    });
+
+    try {
+        postEntity.addPart("param1", new StringBody(param1.toString(),"application/json", Charset.forName("UTF-8")));
+        postEntity.addPart("param2", new StringBody(param2.toString(),"application/json", Charset.forName("UTF-8")));
+
+        totalUploadSize = postEntity.getContentLength();
+        for (Map.Entry<String, String> entry : files.entrySet()) {
+            try {
+                InputStream istream = new FileInputStream(entry.getValue());
+                postEntity.addPart(entry.getKey(), new InputStreamBody(istream, entry.getKey()));
+                totalUploadSize += new File(entry.getValue()).length();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        httppost.setEntity(postEntity);
+    } 
+    catch (UnsupportedEncodingException e) {
+        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    }
+    
+    HttpResponse response = httpclient.execute(httppost, httpContext);
