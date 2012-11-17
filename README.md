@@ -144,7 +144,35 @@ Calls to services should be made using the provided methods in ServicesClient:
 Uploading large files
 =====================
 
-TBD
+Android Asynchronous Http Client supports file uploading but it reads the whole contents of the file in memory 
+which will not work for large files, causing your application to crash with an out of memory exception.
+
+The solution is to go a bit lower level and use the underlying HttpClient to do the upload attaching the files as 
+InputStreams which will perform a streaming upload.
+
+    HttpParams httpParams = new BasicHttpParams();
+    HttpConnectionParams.setConnectionTimeout(httpParams, 900 * 1000);
+    HttpConnectionParams.setSoTimeout(httpParams, 900 * 1000);
+
+    HttpClient httpclient = ServicesClient.client.getHttpClient();
+    HttpContext httpContext = ServicesClient.client.getHttpContext();
+
+    HttpPost httppost = new HttpPost("http://www.example.com/api/mobile/service/upload");
+    httppost.setParams(httpParams);
+
+    MultipartEntity entity = new MultipartEntity();
+    // Add parameters to the post body
+    entity.addPart("param1", new StringBody(param1.toString(),"application/json", Charset.forName("UTF-8")));
+    entity.addPart("param2", new StringBody(param2.toString(),"application/json", Charset.forName("UTF-8")));
+
+    InputStream istream1 = new FileInputStream("file1.jpg");
+    entity.addPart("file1", new InputStreamBody(istream1, "file1"));
+    InputStream istream2 = new FileInputStream("file2.jpg");
+    entity.addPart("file2", new InputStreamBody(istream2, "file2"));
+
+    httppost.setEntity(entity);
+    HttpResponse response = httpclient.execute(httppost, httpContext);
+
 
 Progress callback for upload
 ============================
