@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <title>Android-drupal-sdk by voidberg</title>
+  </head>
+
+  <body>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Android-drupal-sdk</h1>
+          <h2>An Android library allowing you to connect to Drupal sites running Services 3.</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/voidberg/Android-Drupal-Sdk/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/voidberg/Android-Drupal-Sdk/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/voidberg/Android-Drupal-Sdk" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>Android Drupal SDK</h1>
+
+<p>Android Drupal SDK is an easy to use Android client for REST servers based on Drupal and Services 3.</p>
+
+<p>It is built at <a href="http://www.demotix.com/" title="Demotix.com">Demotix.com</a> by Alexandru Badiu and used in the <a href="https://play.google.com/store/apps/details?id=com.demotix">Demotix Android app</a>.</p>
+
+<p>While being used in an application it is work in progress and implements currently only a small number of the standard functions offered by the Services module. Feel free to add more resources.</p>
+
+<p>It uses <a href="http://loopj.com/android-async-http/">Android Asynchronous Http Client</a>.</p>
+
+<h1>Features</h1>
+
+<ul>
+<li>Easy to use</li>
+<li>Supports basic authentication</li>
+<li>Persistent cookies</li>
+<li>Tiny overhead</li>
+<li>HTTP requests happen outside the UI thread</li>
+<li>Smart retries, gzip, threadpool</li>
+</ul><h1>Implemented resources</h1>
+
+<ul>
+<li>User - login, logout</li>
+<li>System - connect</li>
+</ul><h1>Example</h1>
+
+<p>The example supplied shows how to perform a login. It was built with IntelliJ Idea 12.</p>
+
+<h1>General implementation</h1>
+
+<p>There is a base class, ServicesClient, which takes care of storing the session information and making the POST, GET and DELETE calls.</p>
+
+<p>Each service group (System services, User services) is implemented in a separate class which uses the base class to make the relevant calls.</p>
+
+<h1>Usage</h1>
+
+<p>Create a REST client that connects to example.com/api/mobile:</p>
+
+<pre><code>ServicesClient client;
+client = new ServicesClient("http://www.example.com", "api/mobile");
+</code></pre>
+
+<p>Set basic auth credentials:</p>
+
+<pre><code>client.setBasicAuth("username","password/token");
+</code></pre>
+
+<p>Add a persistent cookie store to save the session and reuse it between application runs:</p>
+
+<pre><code>cookieStore = new PersistentCookieStore(this);
+client.setCookieStore(cookieStore);
+</code></pre>
+
+<p>Create system and user services:</p>
+
+<pre><code>UserServices us;
+SystemServices ss;
+
+us = new UserServices(client);
+ss = new SystemServices(client);
+</code></pre>
+
+<p>Call system.connect and check if we are logged in:</p>
+
+<pre><code>JsonHttpResponseHandler connectHandler = new JsonHttpResponseHandler() {
+    @Override
+    public void onSuccess(JSONObject response) {
+        boolean loggedin = false;
+        try {
+            JSONObject user = response.getJSONObject("user");
+            int uid = user.getInt("uid");
+            if (uid &gt; 0) {
+                loggedin = true;
+            }
+            else {
+                loggedin = false;
+            }
+        } catch (JSONException e) {
+            loggedin = false;
+        }
+
+        if (loggedin) {
+            // User is already logged in, do something 
+        }
+        else {
+            // User is not logged in, display login activity or automatically login
+        }
+    }
+
+    @Override
+    public void onFailure(Throwable e, JSONObject response) {
+        // System.Connect call failed
+    }
+
+    @Override
+    public void onFinish() {
+    }
+};
+
+ss.Connect(connectHandler);
+</code></pre>
+
+<p>Call user.login:</p>
+
+<pre><code>JsonHttpResponseHandler loginHandler = new JsonHttpResponseHandler() {
+    @Override
+    public void onSuccess(JSONObject response) {
+        boolean error = false;
+        try {
+            JSONObject user = response.getJSONObject("user");
+
+        } catch (JSONException e) {
+            error = true;
+        }
+
+        if (error) {
+            // A JSON error occured
+        }
+        else {
+            // User has logged in
+        }
+    }
+
+    @Override
+    public void onFailure(Throwable e, JSONObject response) {
+        // Username or password were incorrect
+    }
+
+    @Override
+    public void onFinish() {
+        activity.hideProgressDialog();
+    }
+};
+
+activity.showProgressDialog("Logging you in");
+us.Login("username", "password");
+</code></pre>
+
+<h1>Implementing new services</h1>
+
+<p>New services should live in a class named after their group (System, Node, User) and Services (e.g. NodeServices). </p>
+
+<p>It should have a ServicesClient property and it's constructor should set that property. </p>
+
+<p>Parameters should be packaged in a JSONObject.</p>
+
+<p>Calls to services should be made using the provided methods in ServicesClient:</p>
+
+<ul>
+<li>get(String method, JSONObject params, AsyncHttpResponseHandler responseHandler)</li>
+<li>post(String method, JSONObject params, AsyncHttpResponseHandler responseHandler)</li>
+<li>delete(String method, JSONObject params, AsyncHttpResponseHandler responseHandler)</li>
+</ul><h1>Uploading large files</h1>
+
+<p>Android Asynchronous Http Client supports file uploading but reads the whole contents of the files in memory 
+which will not work for large files, causing your application to crash with an out of memory exception.</p>
+
+<p>The solution is to go a bit lower level and use the underlying HttpClient to do the upload attaching the files as 
+InputStreams which will perform a streaming upload.</p>
+
+<pre><code>HttpParams httpParams = new BasicHttpParams();
+HttpConnectionParams.setConnectionTimeout(httpParams, 900 * 1000);
+HttpConnectionParams.setSoTimeout(httpParams, 900 * 1000);
+
+HttpClient httpclient = ServicesClient.client.getHttpClient();
+HttpContext httpContext = ServicesClient.client.getHttpContext();
+
+HttpPost httppost = new HttpPost("http://www.example.com/api/mobile/service/upload");
+httppost.setParams(httpParams);
+
+MultipartEntity entity = new MultipartEntity();
+// Add parameters to the post body
+entity.addPart("param1", new StringBody(param1.toString(),"application/json", Charset.forName("UTF-8")));
+entity.addPart("param2", new StringBody(param2.toString(),"application/json", Charset.forName("UTF-8")));
+
+InputStream istream1 = new FileInputStream("file1.jpg");
+entity.addPart("file1", new InputStreamBody(istream1, "file1"));
+InputStream istream2 = new FileInputStream("file2.jpg");
+entity.addPart("file2", new InputStreamBody(istream2, "file2"));
+
+httppost.setEntity(entity);
+HttpResponse response = httpclient.execute(httppost, httpContext);
+</code></pre>
+
+<h1>Progress callback for upload</h1>
+
+<p>HttpClient does not have built-in support for performing an upload with a progress callback and implementing one 
+isn't trivial.</p>
+
+<p>For file uploading you can implement a custom multi part entity that hooks into the file stream read operation and 
+counts how much data has been read.</p>
+
+<pre><code>int totalUploadSize = 0;
+
+CustomMultiPartEntity postEntity = new CustomMultiPartEntity(new CustomMultiPartEntity.ProgressListener() {
+    @Override
+    public void transferred(long num) {
+        currentUploadSize = num;
+        updateUploadProgress((int) ((num / (float) totalUploadSize) * 100));
+        updateNotification((int) ((num / (float) totalUploadSize) * 100));
+    }
+});
+
+try {
+    postEntity.addPart("param1", new StringBody(param1.toString(),"application/json", Charset.forName("UTF-8")));
+    postEntity.addPart("param2", new StringBody(param2.toString(),"application/json", Charset.forName("UTF-8")));
+
+    totalUploadSize = postEntity.getContentLength();
+    for (Map.Entry&lt;String, String&gt; entry : files.entrySet()) {
+        try {
+            InputStream istream = new FileInputStream(entry.getValue());
+            postEntity.addPart(entry.getKey(), new InputStreamBody(istream, entry.getKey()));
+            totalUploadSize += new File(entry.getValue()).length();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+    httppost.setEntity(postEntity);
+} 
+catch (UnsupportedEncodingException e) {
+    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+}
+
+HttpResponse response = httpclient.execute(httppost, httpContext);
+</code></pre>
+        </section>
+
+        <footer>
+          Android-drupal-sdk is maintained by <a href="https://github.com/voidberg">voidberg</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
+    </div>
+  </body>
+</html>
