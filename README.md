@@ -1,7 +1,7 @@
-Android Drupal SDK
+DrupalDroid
 ================================
 
-Android Drupal SDK is an easy to use Android client for REST servers based on Drupal and Services 3.
+DrupalDroid is an easy to use Android client for REST servers based on Drupal and Services 3.
 
 It is built at [Demotix.com](http://www.demotix.com/ "Demotix.com") by Alexandru Badiu and used in the [Demotix Android app](https://play.google.com/store/apps/details?id=com.demotix).
 
