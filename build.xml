@@ -1,92 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Android_Drupal_Sdk" default="help">
+<project default="package">
+  <property file="local.properties"/>
+  <property file="project.properties"/>
 
-    <!-- The local.properties file is created and updated by the 'android' tool.
-         It contains the path to the SDK. It should *NOT* be checked into
-         Version Control Systems. -->
-    <property file="local.properties"/>
+  <!-- Package properties -->
+  <property name="package.name" value="drupaldroid" />
+  <property name="package.packagename" value="com.voidberg.drupaldroid" />
 
-    <!-- The ant.properties file can be created by you. It is only edited by the
-         'android' tool to add properties to it.
-         This is the place to change some Ant specific build properties.
-         Here are some properties you may want to change/update:
+  <!-- Get git commit -->
+  <available file=".git" type="dir" property="git.present"/>
 
-         source.dir
-             The name of the source directory. Default is 'src'.
-         out.dir
-             The name of the output directory. Default is 'bin'.
-
-         For other overridable properties, look at the beginning of the rules
-         files in the SDK, at tools/ant/build.xml
-
-         Properties related to the SDK location or the project target should
-         be updated using the 'android' tool with the 'update' action.
-
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems.
-
-         -->
-    <property file="ant.properties"/>
-
-    <!-- if sdk.dir was not set from one of the property file, then
-         get it from the ANDROID_HOME env var.
-         This must be done before we load project.properties since
-         the proguard config can use sdk.dir -->
-    <property environment="env"/>
-    <condition property="sdk.dir" value="${env.ANDROID_HOME}">
-        <isset property="env.ANDROID_HOME"/>
+  <target name="git-details">
+      <exec executable="git" outputproperty="git.status">
+          <arg value="status" />
+      </exec>
+      <echo message="${git.status}"/>
+      
+      <exec executable="git" outputproperty="package.versionname">
+        <arg value="describe"/>
+        <arg value="--tags"/>
+        <arg value="--dirty"/>
+        <arg value="--always"/>
+      </exec>
+      <echo message="${package.versionname}" />
+  </target>
+  
+  <!-- Standard jar stuff -->
+  <property environment="env"/>
+  <condition property="android.base" value="${sdk.dir}" else="${env.ANDROID_HOME}">
+    <isset property="sdk.dir" />
+  </condition>
+  <fail message="Please set either the sdk.dir property or the ANDROID_HOME environment variable to point to your Android SDK installation.">
+    <condition>
+      <not>
+        <available file="${android.base}" type="dir"/>
+      </not>
     </condition>
+  </fail>
 
-    <!-- The project.properties file is created and updated by the 'android'
-         tool, as well as ADT.
+  <property name="lib.dir" value="${android.base}/platforms/${target}" />
+  <property name="build.dir" value="./build"/>
+  <property name="classes.dir"  value="${build.dir}/classes"/>
+  <buildnumber file="build.num" />
 
-         This contains project specific properties such as project target, and library
-         dependencies. Lower level build properties are stored in ant.properties
-         (or in .classpath for Eclipse projects).
+  <!-- Set up classpath -->
+  <path id="classpath">
+      <fileset dir="${lib.dir}" includes="**/*.jar" />
+  </path>
 
-         This file is an integral part of the build system for your
-         application and should be checked into Version Control Systems. -->
-    <loadproperties srcFile="project.properties"/>
+  <!-- Build javadoc -->
+  <target name="doc">
+      <javadoc 
+          classpathref="classpath"
+          sourcepath="gen:src"
+          destdir="doc"
+          packagenames="${package.packagename}"
+          linkoffline="http://d.android.com/reference ${android.base}/docs/reference" 
+          additionalparam="-author  -version"
+          />
+  </target>
 
-    <!-- quick check on sdk.dir -->
-    <fail
-            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
-            unless="sdk.dir"
-            />
+  <!-- Compile java files into classes -->
+  <target name="compile">
+      <mkdir dir="${build.dir}" />
+      <mkdir dir="${classes.dir}" />
 
-    <!--
-        Import per project custom build rules if present at the root of the project.
-        This is the place to put custom intermediary targets such as:
-            -pre-build
-            -pre-compile
-            -post-compile (This is typically used for code obfuscation.
-                           Compiled code location: ${out.classes.absolute.dir}
-                           If this is not done in place, override ${out.dex.input.absolute.dir})
-            -post-package
-            -post-build
-            -pre-clean
-    -->
-    <import file="custom_rules.xml" optional="true"/>
+      <javac
+          includeantruntime="false"
+          srcdir="src"
+          destdir="${classes.dir}"
+          classpathref="classpath"
+          debug="true"
+          debuglevel="lines,source" />
+  </target>
 
-    <!-- Import the actual build file.
+  <!-- Package a jar from compiled class files -->
+  <target name="jar" depends="git-details,compile">
+      <manifest file="MANIFEST.MF">
+          <attribute name="Built-By" value="${user.name}" />
+          <attribute name="Implementation-Version" value="${package.versionname}"/> 
+      </manifest>
 
-         To customize existing targets, there are two options:
-         - Customize only one target:
-             - copy/paste the target into this file, *before* the
-               <import> task.
-             - customize it to your needs.
-         - Customize the whole content of build.xml
-             - copy/paste the content of the rules files (minus the top node)
-               into this file, replacing the <import> task.
-             - customize to your needs.
+      <jar destfile="${package.name}-${package.versionname}.jar" basedir="build/classes" includes="com/loopj/android/http/**/*.class" manifest="MANIFEST.MF" />
+  </target>
 
-         ***********************
-         ****** IMPORTANT ******
-         ***********************
-         In all cases you must update the value of version-tag below to read 'custom' instead of an integer,
-         in order to avoid having your file be overridden by tools such as "android update project"
-    -->
-    <!-- version-tag: 1 -->
-    <import file="${sdk.dir}/tools/ant/build.xml"/>
+  <!-- Clean out the build files -->
+  <target name="clean">
+      <delete dir="build" />
+      <delete dir="doc" />
+      <delete>
+          <fileset dir="." includes="*.jar"/>
+          <fileset file="MANIFEST.MF"/>
+      </delete>
+  </target>
 
+  <!-- Compile and package a jar -->
+  <target name="package" depends="compile,jar" />
 </project>
