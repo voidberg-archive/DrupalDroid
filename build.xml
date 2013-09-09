@@ -7,22 +7,14 @@
   <property name="package.name" value="drupaldroid" />
   <property name="package.packagename" value="com.voidberg.drupaldroid" />
 
-  <!-- Get git commit -->
-  <available file=".git" type="dir" property="git.present"/>
+  <path id="android.antlibs">
+    <pathelement path="${sdk.dir}/tools/lib/ant-tasks.jar" />
+  </path>
 
-  <target name="git-details">
-      <exec executable="git" outputproperty="git.status">
-          <arg value="status" />
-      </exec>
-      <echo message="${git.status}"/>
-      
-      <exec executable="git" outputproperty="package.versionname">
-        <arg value="describe"/>
-        <arg value="--tags"/>
-        <arg value="--dirty"/>
-        <arg value="--always"/>
-      </exec>
-      <echo message="${package.versionname}" />
+  <target name="get-version">
+    <taskdef name="xpath" classname="com.android.ant.XPathTask" classpathref="android.antlibs" />
+    <xpath input="./AndroidManifest.xml" expression="/manifest/@android:versionName" output="package.versionname" />
+    <echo message="${package.versionname}" />
   </target>
   
   <!-- Standard jar stuff -->
@@ -85,13 +77,13 @@
   </target>
 
   <!-- Package a jar from compiled class files -->
-  <target name="jar" depends="git-details,compile">
+  <target name="jar" depends="get-version,compile">
       <manifest file="MANIFEST.MF">
           <attribute name="Built-By" value="${user.name}" />
           <attribute name="Implementation-Version" value="${package.versionname}"/> 
       </manifest>
 
-      <jar destfile="${package.name}-${package.versionname}.jar" basedir="build/classes" includes="com/voidberg/drupaldroid/**/*.class" manifest="MANIFEST.MF" />
+      <jar destfile="releases/${package.name}-${package.versionname}.jar" basedir="build/classes" includes="com/voidberg/drupaldroid/**/*.class" manifest="MANIFEST.MF" />
   </target>
 
   <!-- Clean out the build files -->
