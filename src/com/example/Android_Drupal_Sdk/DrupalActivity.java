@@ -1,4 +1,4 @@
-package com.example.Android_Drupal_Sdk;
+package com.example.drupaldroid;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,8 +6,8 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import org.plan9.drupalsdk.ServicesClient;
-import org.plan9.drupalsdk.UserServices;
+import com.voidberg.drupaldroid.ServicesClient;
+import com.voidberg.drupaldroid.UserServices;
 
 public class DrupalActivity extends Activity {
     Activity activity;
@@ -18,13 +18,14 @@ public class DrupalActivity extends Activity {
     String drupalUser = "user";
     String drupalPass = "pass";
 
+    String TAG = "drupal-sdk-example";
+
     /**
      * Called when the activity is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
 
         activity = this;
 
@@ -41,15 +42,15 @@ public class DrupalActivity extends Activity {
             @Override
             public void onSuccess(String response) {
                 // Response is a JSON string containing sessid, session_name and a user object
-                Log.v("drupal-sdk-example", response);
+                Log.v(TAG, response);
 
                 new AlertDialog.Builder(activity).setMessage("Login was successful.").setPositiveButton("OK", null).setCancelable(true).create().show();
             }
 
             @Override
             public void onFailure(Throwable e, String response) {
-                Log.v("drupal-sdk-example", e.getMessage());
-                Log.v("drupal-sdk-example", response);
+                Log.v(TAG, e.getMessage());
+                Log.v(TAG, response);
 
                 new AlertDialog.Builder(activity).setMessage("Login failed.").setPositiveButton("OK", null).setCancelable(true).create().show();
             }
