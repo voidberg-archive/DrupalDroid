@@ -9,7 +9,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.voidberg.drupaldroid.ServicesClient;
 import com.voidberg.drupaldroid.UserServices;
 
-public class DrupalActivity extends Activity {
+public class Login extends Activity {
     Activity activity;
     ProgressDialog progressDialog;
 
