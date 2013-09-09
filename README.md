@@ -3,7 +3,7 @@ DrupalDroid
 
 DrupalDroid is an easy to use Android client for REST servers based on Drupal and Services 3.
 
-It is built at [Demotix.com](http://www.demotix.com/ "Demotix.com") by Alexandru Badiu and used in the [Demotix Android app](https://play.google.com/store/apps/details?id=com.demotix).
+It is built at [Demotix.com](http://www.demotix.com/ "Demotix.com") by [Alexandru Badiu](http://ctrlz.ro) and used in the [Demotix Android app](https://play.google.com/store/apps/details?id=com.demotix).
 
 While being used in an application it is work in progress and implements currently only a small number of the standard functions offered by the Services module. Feel free to fork the project, add more resources and make a pull request.
 
