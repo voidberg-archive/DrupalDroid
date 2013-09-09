@@ -46,7 +46,17 @@
   <!-- Set up classpath -->
   <path id="classpath">
       <fileset dir="${lib.dir}" includes="**/*.jar" />
+      <fileset dir="support" includes="**/*.jar" />
   </path>
+  
+  <!-- Download android-async-http -->
+  <target name="download">
+    <mkdir dir="support" />
+    <get 
+       src="https://github.com/loopj/android-async-http/raw/master/releases/android-async-http-1.4.3.jar" 
+       dest="support/android-async-http-1.4.3.jar">
+    </get>
+  </target>
 
   <!-- Build javadoc -->
   <target name="doc">
@@ -61,7 +71,7 @@
   </target>
 
   <!-- Compile java files into classes -->
-  <target name="compile">
+  <target name="compile" depends="download">
       <mkdir dir="${build.dir}" />
       <mkdir dir="${classes.dir}" />
 
@@ -81,12 +91,13 @@
           <attribute name="Implementation-Version" value="${package.versionname}"/> 
       </manifest>
 
-      <jar destfile="${package.name}-${package.versionname}.jar" basedir="build/classes" includes="com/loopj/android/http/**/*.class" manifest="MANIFEST.MF" />
+      <jar destfile="${package.name}-${package.versionname}.jar" basedir="build/classes" includes="com/voidberg/drupaldroid/**/*.class" manifest="MANIFEST.MF" />
   </target>
 
   <!-- Clean out the build files -->
   <target name="clean">
       <delete dir="build" />
+      <delete dir="support" />
       <delete dir="doc" />
       <delete>
           <fileset dir="." includes="*.jar"/>
