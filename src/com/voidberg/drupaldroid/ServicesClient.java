@@ -69,7 +69,7 @@ public class ServicesClient {
         this.setHeaders();
         StringEntity se = null;
         try {
-            se = new StringEntity(params.toString());
+            se = new StringEntity(params.toString(), HTTP.UTF_8);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -87,7 +87,7 @@ public class ServicesClient {
         this.setHeaders();
         StringEntity se = null;
         try {
-            se = new StringEntity(params.toString());
+            se = new StringEntity(params.toString(), HTTP.UTF_8);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
