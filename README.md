@@ -32,6 +32,11 @@ Example
 
 The example supplied shows how to perform a login. It was built with IntelliJ Idea 12.
 
+Authors
+=======
+
+* [Alexandru Badiu](http://ctrlz.ro)
+* [Luciano Vitti](https://github.com/xAnubiSx)
 
 General implementation
 ======================
