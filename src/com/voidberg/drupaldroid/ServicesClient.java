@@ -69,7 +69,7 @@ public class ServicesClient {
         this.setHeaders();
         StringEntity se = null;
         try {
-            se = new StringEntity(params.toString());
+            se = new StringEntity(params.toString(), HTTP.UTF_8);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -80,14 +80,14 @@ public class ServicesClient {
 
     public void put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         this.setHeaders();
-        client.post(getAbsoluteUrl(url), params, responseHandler);
+        client.put(getAbsoluteUrl(url), params, responseHandler);
     }
 
     public void put(String url, JSONObject params, AsyncHttpResponseHandler responseHandler) {
         this.setHeaders();
         StringEntity se = null;
         try {
-            se = new StringEntity(params.toString());
+            se = new StringEntity(params.toString(), HTTP.UTF_8);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
