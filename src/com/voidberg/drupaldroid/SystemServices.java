@@ -10,7 +10,7 @@ public class SystemServices {
         client = c;
     }
 
-    public void Connect(AsyncHttpResponseHandler responseHandler) {
+    public void connect(AsyncHttpResponseHandler responseHandler) {
         client.post("system/connect", new JSONObject(), responseHandler);
     }
 }

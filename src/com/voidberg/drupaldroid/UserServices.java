@@ -11,7 +11,7 @@ public class UserServices {
         client = c;
     }
 
-    public void Login(String username, String password, AsyncHttpResponseHandler responseHandler) {
+    public void login(String username, String password, AsyncHttpResponseHandler responseHandler) {
         JSONObject params = new JSONObject();
         try {
             params.put("username", username);
@@ -22,7 +22,7 @@ public class UserServices {
         client.post("user/login", params, responseHandler);
     }
 
-    public void Logout(AsyncHttpResponseHandler responseHandler) {
+    public void logout(AsyncHttpResponseHandler responseHandler) {
         client.post("user/logout", new JSONObject(), responseHandler);
     }
 }
