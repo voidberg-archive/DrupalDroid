@@ -9,7 +9,7 @@ While being used in an application it is work in progress and implements current
 
 It uses [Android Asynchronous Http Client](http://loopj.com/android-async-http/).
 
-Latest version is [1.2](https://github.com/voidberg/DrupalDroid/raw/master/releases/drupaldroid-1.2.jar).
+Latest version is [1.2](https://github.com/voidberg/DrupalDroid/raw/master/releases/drupaldroid-1.3.jar).
 
 Features
 ========
@@ -123,7 +123,7 @@ Call system.connect and check if we are logged in:
         }
     };
 
-    ss.Connect(connectHandler);
+    ss.connect(connectHandler);
 
 Call user.login:
 
@@ -158,7 +158,7 @@ Call user.login:
     };
 
     activity.showProgressDialog("Logging you in");
-    us.Login("username", "password");
+    us.login("username", "password");
 
 Implementing new services
 =========================
