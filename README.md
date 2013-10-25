@@ -9,7 +9,7 @@ While being used in an application it is work in progress and implements current
 
 It uses [Android Asynchronous Http Client](http://loopj.com/android-async-http/).
 
-Latest version is [1.2](https://github.com/voidberg/DrupalDroid/raw/master/releases/drupaldroid-1.3.jar).
+Latest version is [1.3](https://github.com/voidberg/DrupalDroid/raw/master/releases/drupaldroid-1.3.jar).
 
 Features
 ========
